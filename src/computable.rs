@@ -10,6 +10,7 @@ use std::ops::Deref;
 mod approximation;
 mod format;
 
+/// Number of bits of precision counting to the _left_ of the radix point.
 pub type Precision = i32;
 
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -358,7 +359,8 @@ impl Computable {
         self.signal = Some(s);
     }
 
-    /// An approximation of this Computable scaled to a specific precision
+    /// An approximation of this Computable scaled to a specific precision. Since the value
+    /// is scaled, the approximation ≈ value * 2^p. Negative values of p are more precise.
     ///
     /// The approximation is scaled (thus, a larger value for more negative p)
     /// and should be accurate to within +/- 1 at the scale provided.
@@ -576,7 +578,7 @@ mod tests {
     fn shifted() {
         let one = BigInt::one();
         let two = &one + &one;
-        assert_eq!(one, shift(two, -1));
+        assert_eq!(one, shift(two.clone(), -1));
     }
 
     #[test]

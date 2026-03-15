@@ -153,6 +153,7 @@ fn offset(signal: &Option<Signal>, c: &Computable, n: i32, p: Precision) -> BigI
     c.approx_signal(signal, p - n)
 }
 
+/// Compute an integer approximation to `log2(1+|n|)`.
 fn bound_log2(n: i32) -> i32 {
     let abs_n = n.abs();
     let ln2 = 2.0_f64.ln();
@@ -306,14 +307,14 @@ fn cos(signal: &Option<Signal>, c: &Computable, p: Precision) -> BigInt {
     scale(current_sum, calc_precision - p)
 }
 
-// Compute an approximation of ln(1+x) to precision p.
-// This assumes |x| < 1/2.
-// It uses a Taylor series expansion.
-// Unfortunately there appears to be no way to take
-// advantage of old information.
-// Note: this is known to be a bad algorithm for
-// floating point.  Unfortunately, other alternatives
-// appear to require precomputed tabular information.
+/// Compute an approximation of ln(1+x) to precision p.
+/// This assumes |x| < 1/2.
+/// It uses a Taylor series expansion.
+/// Unfortunately there appears to be no way to take
+/// advantage of old information.
+/// Note: this is known to be a bad algorithm for
+/// floating point.  Unfortunately, other alternatives
+/// appear to require precomputed tabular information.
 fn ln(signal: &Option<Signal>, c: &Computable, p: Precision) -> BigInt {
     if p >= 0 {
         return Zero::zero();
@@ -349,8 +350,8 @@ fn ln(signal: &Option<Signal>, c: &Computable, p: Precision) -> BigInt {
     scale(sum, calc_precision - p)
 }
 
-// Approximate the Arctangent of 1/n where n is some small integer > base
-// what is "base" in this context?
+/// Approximate the Arctangent of 1/n where n is some small integer > base
+/// what is "base" in this context?
 fn atan(signal: &Option<Signal>, i: &BigInt, p: Precision) -> BigInt {
     if p >= 1 {
         return Zero::zero();
