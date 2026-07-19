@@ -29,6 +29,20 @@ impl Approximation {
     pub fn approximate(&self, signal: &Option<Signal>, p: Precision) -> BigInt {
         use Approximation::*;
 
+        // use std::backtrace::Backtrace;
+        // let bt = Backtrace::force_capture(); // for debugging purposes, to track down where approximations are being computed.
+        // // Filter out any lines from the backtrace whose `file` starts with `/rustc`.
+        // let backtrace_str = format!("{bt}");
+        // let num_bt_lines = backtrace_str.lines().count();
+        // let filtered_bt = backtrace_str.lines()
+        //     .filter(|line| {
+        //         !line.contains("/rustc") && !line.contains("/cargo/registry")
+        //     })
+        //     .collect::<Vec<_>>()
+        //     .join("\n");
+        // // println!("Computing approximation for {:?} at precision {}. Stack frames: {} Backtrace: {}", self, p, num_bt_lines, filtered_bt);
+        // println!("Computing approximation at precision {}. Stack frames: {}", p, num_bt_lines);
+
         match self {
             Int(i) => scale(i.clone(), -p),
             Inverse(c) => inverse(signal, c, p),
@@ -162,8 +176,8 @@ fn bound_log2(n: i32) -> i32 {
     ans as i32
 }
 
-/* Only intended for Computable values < 0.5, others will be pre-scaled
- * in Computable::exp */
+/// Only intended for Computable values < 0.5, others will be pre-scaled
+/// in Computable::exp
 fn exp(signal: &Option<Signal>, c: &Computable, p: Precision) -> BigInt {
     if p >= 1 {
         return Zero::zero();
@@ -258,8 +272,8 @@ fn sqrt(signal: &Option<Signal>, c: &Computable, p: Precision) -> BigInt {
     }
 }
 
-// Compute cosine of |c| < 1
-// uses a Taylor series expansion.
+/// Compute cosine of |c| < 1
+/// uses a Taylor series expansion.
 fn cos(signal: &Option<Signal>, c: &Computable, p: Precision) -> BigInt {
     if p >= 1 {
         return signed::ONE.deref().clone();

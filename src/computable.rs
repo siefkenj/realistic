@@ -10,7 +10,8 @@ use std::ops::Deref;
 mod approximation;
 mod format;
 
-/// Number of bits of precision counting to the _left_ of the radix point.
+/// Number of bits of precision. The count goes to the _left_ of the radix point.
+/// So, the binary number 100101.001| has precision -3. The same number with precision 2 would be 1001|00.000
 pub type Precision = i32;
 
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -52,26 +53,26 @@ mod rationals {
         LazyLock::new(|| Rational::fraction(1, 80).unwrap());
 }
 
-mod signed {
+pub(crate) mod signed {
     use num::One;
     use num::{BigInt, bigint::ToBigInt};
     use std::sync::LazyLock;
 
-    pub(super) static MINUS_ONE: LazyLock<BigInt> =
+    pub(crate) static MINUS_ONE: LazyLock<BigInt> =
         LazyLock::new(|| ToBigInt::to_bigint(&-1).unwrap());
-    pub(super) static ONE: LazyLock<BigInt> = LazyLock::new(BigInt::one);
-    pub(super) static TWO: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&2).unwrap());
-    pub(super) static THREE: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&3).unwrap());
-    pub(super) static FOUR: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&4).unwrap());
-    pub(super) static FIVE: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&5).unwrap());
-    pub(super) static SIX: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&6).unwrap());
-    pub(super) static SEVEN: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&7).unwrap());
-    pub(super) static EIGHT: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&8).unwrap());
-    pub(super) static TWENTY_FOUR: LazyLock<BigInt> =
+    pub(crate) static ONE: LazyLock<BigInt> = LazyLock::new(BigInt::one);
+    pub(crate) static TWO: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&2).unwrap());
+    pub(crate) static THREE: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&3).unwrap());
+    pub(crate) static FOUR: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&4).unwrap());
+    pub(crate) static FIVE: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&5).unwrap());
+    pub(crate) static SIX: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&6).unwrap());
+    pub(crate) static SEVEN: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&7).unwrap());
+    pub(crate) static EIGHT: LazyLock<BigInt> = LazyLock::new(|| ToBigInt::to_bigint(&8).unwrap());
+    pub(crate) static TWENTY_FOUR: LazyLock<BigInt> =
         LazyLock::new(|| ToBigInt::to_bigint(&24).unwrap());
-    pub(super) static SIXTY_FOUR: LazyLock<BigInt> =
+    pub(crate) static SIXTY_FOUR: LazyLock<BigInt> =
         LazyLock::new(|| ToBigInt::to_bigint(&64).unwrap());
-    pub(super) static TWO_THREE_NINE: LazyLock<BigInt> =
+    pub(crate) static TWO_THREE_NINE: LazyLock<BigInt> =
         LazyLock::new(|| ToBigInt::to_bigint(&239).unwrap());
 }
 
@@ -523,7 +524,7 @@ impl Computable {
     }
 }
 
-fn shift(n: BigInt, p: Precision) -> BigInt {
+pub(crate) fn shift(n: BigInt, p: Precision) -> BigInt {
     match 0.cmp(&p) {
         Ordering::Greater => n >> -p,
         Ordering::Equal => n,
@@ -531,10 +532,10 @@ fn shift(n: BigInt, p: Precision) -> BigInt {
     }
 }
 
-/// Scale n by p bits, rounding if this makes n smaller.
+/// Scale (left shift) n by p bits, rounding if this makes n smaller.
 /// e.g. scale(10, 2) == 40
 ///      scale(10, -2) == 3
-fn scale(n: BigInt, p: Precision) -> BigInt {
+pub(crate) fn scale(n: BigInt, p: Precision) -> BigInt {
     if p >= 0 {
         n << p
     } else {

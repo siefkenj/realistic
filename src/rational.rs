@@ -48,7 +48,6 @@ pub(crate) mod convert;
 /// let four = quarter * sixteen;
 /// assert_eq!(four, Rational::new(4));
 /// ```
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rational {
     sign: Sign,
@@ -340,21 +339,8 @@ impl Rational {
 
     // Some(root) squared is n, otherwise None
     fn try_perfect(n: BigUint) -> Option<BigUint> {
-        use crate::Computable;
-        use std::cmp::Ordering::*;
-
-        let r = Self {
-            sign: Plus,
-            numerator: n.clone(),
-            denominator: BigUint::one(),
-        };
-        let sqrt = Computable::sqrt_rational(r);
-        let root = ToBigUint::to_biguint(&sqrt.approx(0)).expect("should be an unsigned integer");
-        let square = &root * &root;
-        match n.cmp(&square) {
-            Equal => Some(root),
-            _ => None,
-        }
+        let root = n.sqrt();
+        if &root * &root == n { Some(root) } else { None }
     }
 
     // (root squared times rest) = n
